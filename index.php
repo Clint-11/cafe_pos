@@ -75,7 +75,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="index.php">
-                <img src="assets/images/logo.png" alt="Sip Happens Logo" onerror="this.src='https://via.placeholder.com/150x50/6f4e37/ffffff?text=Sip+Happens'">
+                <img src="assets/images/logo1.png" alt="Sip Happens Logo" onerror="this.src='https://via.placeholder.com/150x50/6f4e37/ffffff?text=Sip+Happens'">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -84,8 +84,6 @@
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link" href="index.php">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="#about">About Us</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#gallery">Gallery</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#contact">Contact Us</a></li>
                     <li class="nav-item">
                         <a href="login.php" class="btn btn-outline-light ms-2">Login</a>
                     </li>
@@ -106,10 +104,9 @@
             <div class="row justify-content-center">
                 <div class="col-md-8">
                     <div class="card bg-dark bg-opacity-75 text-white p-4">
-                        <h3 class="mb-4">Love Coffee</h3>
+                        <h3 class="mb-4">Cashier Portal</h3>
                         <p class="lead mb-0">
-                            Lorem ipsum dolor sit amet consectetur adipiscing elit, 
-                            sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna.
+                        Designed for fast and accurate order handling at the counter.
                         </p>
                     </div>
                 </div>

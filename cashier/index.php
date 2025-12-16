@@ -216,16 +216,18 @@ if (isset($_SESSION['cart'])) {
         }
         .menu-item-card {
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.3s ease;
             border: 1px solid #dee2e6;
             border-radius: 10px;
             padding: 15px;
             margin-bottom: 15px;
             background: white;
+            text-align: center;
+            height: 100%;
         }
         .menu-item-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
             border-color: #6f4e37;
         }
         .cart-item {
@@ -240,11 +242,13 @@ if (isset($_SESSION['cart'])) {
             margin-top: auto;
         }
         .item-image {
-            width: 80px;
-            height: 80px;
+            width: 140px;
+            height: 140px;
             object-fit: cover;
-            border-radius: 8px;
+            border-radius: 10px;
             border: 2px solid #dee2e6;
+            margin: 0 auto 15px auto;
+            display: block;
         }
         .cart-item-image {
             width: 60px;
@@ -265,6 +269,8 @@ if (isset($_SESSION['cart'])) {
             padding: 5px 10px;
             border-radius: 5px;
             font-size: 0.8rem;
+            display: inline-block;
+            margin-top: 8px;
         }
         .quantity-badge {
             background: #198754;
@@ -295,6 +301,63 @@ if (isset($_SESSION['cart'])) {
         .search-box {
             width: 300px;
         }
+        .item-name {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .item-price {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #6f4e37;
+            margin-bottom: 10px;
+        }
+        .item-description {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 10px;
+            min-height: 40px;
+        }
+        .add-to-cart-btn {
+            background: #6f4e37;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+        .add-to-cart-btn:hover {
+            background: #5a3f2e;
+        }
+        .in-cart-badge {
+            background: #198754;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            margin-top: 5px;
+            display: inline-block;
+        }
+        .category-header {
+            background: #6f4e37;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .grid-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+        }
     </style>
 </head>
 <body>
@@ -305,6 +368,9 @@ if (isset($_SESSION['cart'])) {
             </a>
             <span class="navbar-text">
                 <i class="fas fa-user me-1"></i> Cashier: <?php echo $_SESSION['fullname']; ?>
+                <?php if (!empty($_SESSION['cart'])): ?>
+                <span class="badge bg-warning ms-2"><?php echo count($_SESSION['cart']); ?> items</span>
+                <?php endif; ?>
             </span>
         </div>
     </nav>
@@ -346,61 +412,71 @@ if (isset($_SESSION['cart'])) {
                 ?>
                 <div class="tab-pane fade <?php echo $first ? 'show active' : ''; ?>" 
                      id="cat-<?php echo $cat_id; ?>">
-                    <div class="row">
+                    <div class="category-header">
+                        <i class="fas fa-tag me-2"></i><?php echo $category['name']; ?>
+                    </div>
+                    <div class="grid-view">
                         <?php foreach ($category['items'] as $item): ?>
-                        <div class="col-md-6 col-lg-4 mb-3">
-                            <div class="menu-item-card">
-                                <div class="row align-items-center">
-                                    <div class="col-4">
-                                        <?php 
-                                        $image_url = !empty($item['image_url']) ? '../' . $item['image_url'] : 'https://via.placeholder.com/80x80/6f4e37/ffffff?text=No+Image';
-                                        ?>
-                                        <img src="<?php echo $image_url; ?>" alt="<?php echo $item['item_name']; ?>" 
-                                             class="item-image img-fluid"
-                                             onerror="this.src='https://via.placeholder.com/80x80/6f4e37/ffffff?text=No+Image'">
-                                    </div>
-                                    <div class="col-8">
-                                        <div class="d-flex justify-content-between align-items-start">
-                                            <div>
-                                                <h6 class="mb-1"><?php echo $item['item_name']; ?></h6>
-                                                <?php if ($item['description']): ?>
-                                                <p class="text-muted small mb-1"><?php echo substr($item['description'], 0, 50); ?><?php echo strlen($item['description']) > 50 ? '...' : ''; ?></p>
-                                                <?php endif; ?>
-                                                <span class="category-badge"><?php echo $category['name']; ?></span>
-                                            </div>
-                                            <div class="text-end">
-                                                <span class="fw-bold d-block">₱<?php echo number_format($item['price'], 2); ?></span>
-                                                <?php
-                                                // Check if item is in cart
-                                                $cart_quantity = 0;
-                                                if (isset($_SESSION['cart'])) {
-                                                    foreach ($_SESSION['cart'] as $cart_item) {
-                                                        if ($cart_item['id'] == $item['item_id']) {
-                                                            $cart_quantity = $cart_item['quantity'];
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                                if ($cart_quantity > 0): ?>
-                                                <small class="text-success">
-                                                    <i class="fas fa-check-circle"></i> In cart: <?php echo $cart_quantity; ?>
-                                                </small>
-                                                <?php endif; ?>
-                                            </div>
-                                        </div>
-                                        <form method="POST" class="mt-2">
-                                            <input type="hidden" name="item_id" value="<?php echo $item['item_id']; ?>">
-                                            <div class="input-group input-group-sm">
-                                                <span class="input-group-text">Qty</span>
-                                                <input type="number" name="quantity" value="1" min="1" max="99" class="form-control" style="width: 70px;">
-                                                <button type="submit" name="add_to_cart" class="btn btn-primary btn-sm">
-                                                    <i class="fas fa-plus"></i> Add
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
+                        <div class="menu-item-card">
+                            <!-- Item Image (Bigger) -->
+                            <?php 
+                            $image_url = !empty($item['image_url']) ? '../' . $item['image_url'] : 'https://via.placeholder.com/140x140/6f4e37/ffffff?text=' . urlencode(substr($item['item_name'], 0, 10));
+                            ?>
+                            <img src="<?php echo $image_url; ?>" alt="<?php echo $item['item_name']; ?>" 
+                                 class="item-image"
+                                 onerror="this.src='https://via.placeholder.com/140x140/6f4e37/ffffff?text=No+Image'">
+                            
+                            <!-- Item Name (Below Image) -->
+                            <div class="item-name">
+                                <?php echo $item['item_name']; ?>
                             </div>
+                            
+                            <!-- Item Description -->
+                            <?php if ($item['description']): ?>
+                            <div class="item-description">
+                                <?php echo substr($item['description'], 0, 60); ?><?php echo strlen($item['description']) > 60 ? '...' : ''; ?>
+                            </div>
+                            <?php endif; ?>
+                            
+                            <!-- Item Price -->
+                            <div class="item-price">
+                                ₱<?php echo number_format($item['price'], 2); ?>
+                            </div>
+                            
+                            <!-- Category Badge -->
+                            <div class="category-badge">
+                                <?php echo $category['name']; ?>
+                            </div>
+                            
+                            <!-- Check if item is in cart -->
+                            <?php
+                            $cart_quantity = 0;
+                            if (isset($_SESSION['cart'])) {
+                                foreach ($_SESSION['cart'] as $cart_item) {
+                                    if ($cart_item['id'] == $item['item_id']) {
+                                        $cart_quantity = $cart_item['quantity'];
+                                        break;
+                                    }
+                                }
+                            }
+                            if ($cart_quantity > 0): ?>
+                            <div class="in-cart-badge">
+                                <i class="fas fa-check-circle me-1"></i> In cart: <?php echo $cart_quantity; ?>
+                            </div>
+                            <?php endif; ?>
+                            
+                            <!-- Add to Cart Form -->
+                            <form method="POST" class="mt-3">
+                                <input type="hidden" name="item_id" value="<?php echo $item['item_id']; ?>">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-light">Qty</span>
+                                    <input type="number" name="quantity" value="1" min="1" max="99" 
+                                           class="form-control text-center" style="width: 60px;">
+                                    <button type="submit" name="add_to_cart" class="add-to-cart-btn">
+                                        <i class="fas fa-plus"></i> Add
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                         <?php endforeach; ?>
                     </div>
@@ -485,7 +561,7 @@ if (isset($_SESSION['cart'])) {
                         <div class="d-flex align-items-center">
                             <div class="position-relative">
                                 <?php 
-                                $image_url = !empty($item['image_url']) ? '../' . $item['image_url'] : 'https://via.placeholder.com/60x60/6f4e37/ffffff?text=No+Image';
+                                $image_url = !empty($item['image_url']) ? '../' . $item['image_url'] : 'https://via.placeholder.com/60x60/6f4e37/ffffff?text=' . urlencode(substr($item['name'], 0, 5));
                                 ?>
                                 <img src="<?php echo $image_url; ?>" alt="<?php echo $item['name']; ?>" 
                                      class="cart-item-image"
@@ -597,7 +673,7 @@ if (isset($_SESSION['cart'])) {
             const menuCards = document.querySelectorAll('.menu-item-card');
             
             menuCards.forEach(card => {
-                const itemName = card.querySelector('h6').textContent.toLowerCase();
+                const itemName = card.querySelector('.item-name').textContent.toLowerCase();
                 if (itemName.includes(searchTerm)) {
                     card.parentElement.style.display = 'block';
                 } else {
@@ -621,6 +697,22 @@ if (isset($_SESSION['cart'])) {
             <?php if (!empty($_SESSION['cart'])): ?>
             document.getElementById('customer_name').focus();
             <?php endif; ?>
+            
+            // Initialize tooltips
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+        
+        // Add hover effects to menu items
+        document.querySelectorAll('.menu-item-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
         });
     </script>
     
